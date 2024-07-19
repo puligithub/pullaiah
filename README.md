@@ -66,10 +66,10 @@ I enjoy sharing my knowledge and experiences through writing. Check out my lates
 
 Feel free to reach out to me for collaboration, project discussions, or just to say hi!
 
-- **Email**: john.doe@example.com
-- **LinkedIn**: [John Doe](https://www.linkedin.com/in/pullaiahgavvala)
-- **Twitter**: [@john_doe](https://twitter.com/pullaiahgavvala)
-- **Personal Website/Blog**: [John Doe's Blog](https://pullaiahgavvalablog.example.com)
+- **Email**: puli.gavvala@gmail.com
+- **LinkedIn**: [Pullaiah Gavvala](https://www.linkedin.com/in/pullaiahgavvala)
+- **Twitter**: [@pullaiahgavvala](https://twitter.com/pullaiahgavvala)
+- **Personal Website/Blog**: [Pullaiah Gavvala Blog](https://pullaiahgavvalablog.example.com)
 
 ##![Profile Views](https://komarev.com/ghpvc/?username=yourusername&style=flat-square&color=blue)
 
