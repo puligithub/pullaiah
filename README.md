@@ -21,7 +21,7 @@ Hello! I'm [Pullaiah Gavvala], a passionate and experienced Python developer wit
 - **Cloud**: AWS, GCP
 - **Databases**: PostgreSQL
 - **Version Control**: Git, GitHub, GitLab
-- **Operating Systems: Unix 
+- **Operating Systems**: Unix 
 
 ## Projects
 
