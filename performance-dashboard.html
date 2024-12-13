@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kubernetes Pod Performance Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .chart-container { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .chart { width: 48%; }
+    </style>
+</head>
+<body>
+    <h1>Pod Performance Metrics</h1>
+    
+    <div class="chart-container">
+        <div class="chart">
+            <h2>IOPS Performance</h2>
+            <canvas id="iopsChart"></canvas>
+        </div>
+        <div class="chart">
+            <h2>Network Performance</h2>
+            <canvas id="networkChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <div class="chart">
+            <h2>Resource Utilization</h2>
+            <canvas id="resourceChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        async function fetchPerformanceData() {
+            const response = await fetch('/performance-data');
+            return await response.json();
+        }
+
+        async function updateCharts() {
+            const data = await fetchPerformanceData();
+            
+            // IOPS Chart
+            new Chart(document.getElementById('iopsChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Random Read', 'Random Write', 'Sequential Read', 'Sequential Write'],
+                    datasets: [{
+                        label: 'IOPS',
+                        data: [
+                            data.iops_read.random.read_iops,
+                            data.iops_read.random.write_iops,
+                            data.iops_read.sequential.read_iops,
+                            data.iops_read.sequential.write_iops
+                        ]
+                    }]
+                }
+            });
+
+            // Network Performance Chart
+            new Chart(document.getElementById('networkChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Download Speed', 'Upload Speed', 'Ping'],
+                    datasets: [{
+                        label: 'Network Metrics',
+                        data: [
+                            data.network.download_speed_mbps,
+                            data.network.upload_speed_mbps,
+                            data.network.ping_ms
+                        ]
+                    }]
+                }
+            });
+
+            // Resource Utilization Chart
+            new Chart(document.getElementById('resourceChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['CPU Usage (%)', 'Memory Usage (MB)'],
+                    datasets: [{
+                        label: 'Resource Metrics',
+                        data: [
+                            data.resource_utilization.cpu_percent,
+                            data.resource_utilization.memory_usage_mb
+                        ]
+                    }]
+                }
+            });
+        }
+
+        // Update charts every 5 minutes
+        updateCharts();
+        setInterval(updateCharts, 300000);
+    </script>
+</body>
+</html>
