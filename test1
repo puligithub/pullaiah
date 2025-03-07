@@ -1,1 +1,2244 @@
-test
+{
+  "__inputs": [],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.3.1"
+    },
+    {
+      "type": "panel",
+      "id": "heatmap",
+      "name": "Heatmap",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "nodeGraph",
+      "name": "Node Graph",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "text",
+      "name": "Text",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Visualize OpenTelemetry (OTEL) collector metrics – converted to InfluxQL queries for InfluxDB.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 23,
+      "panels": [],
+      "title": "Receivers",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "Accepted: count/rate of spans successfully pushed into the pipeline.\nRefused: count/rate of spans that could not be pushed into the pipeline.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Refused.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 1
+      },
+      "id": 28,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Accepted\" FROM \"otelcol_receiver_accepted_spans\" WHERE \"receiver\" =~ /$receiver/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"receiver\"",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Accepted: {{receiver}} {{transport}} {{service_instance_id}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Refused\" FROM \"otelcol_receiver_refused_spans\" WHERE \"receiver\" =~ /$receiver/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"receiver\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Refused: {{receiver}} {{transport}} {{service_instance_id}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Spans ${metric:text}",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "Accepted: count/rate of metric points successfully pushed into the pipeline.\nRefused: count/rate of metric points that could not be pushed into the pipeline.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Refused.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 1
+      },
+      "id": 80,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Accepted\" FROM \"otelcol_receiver_accepted_metric_points\" WHERE \"receiver\" =~ /$receiver/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"receiver\"",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Accepted: {{receiver}} {{transport}} {{service_instance_id}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Refused\" FROM \"otelcol_receiver_refused_metric_points\" WHERE \"receiver\" =~ /$receiver/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"receiver\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Refused: {{receiver}} {{transport}} {{service_instance_id}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Metric Points ${metric:text}",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "Accepted: count/rate of log records successfully pushed into the pipeline.\nRefused: count/rate of log records that could not be pushed into the pipeline.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Refused.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 1
+      },
+      "id": 47,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Accepted\" FROM \"otelcol_receiver_accepted_log_records\" WHERE \"receiver\" =~ /$receiver/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"receiver\"",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Accepted: {{receiver}} {{transport}} {{service_instance_id}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Refused\" FROM \"otelcol_receiver_refused_log_records\" WHERE \"receiver\" =~ /$receiver/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"receiver\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Refused: {{receiver}} {{transport}} {{service_instance_id}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Log Records ${metric:text}",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "id": 34,
+      "panels": [],
+      "title": "Processors",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Refused.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Dropped.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 10
+      },
+      "id": 85,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Incoming\" FROM \"otelcol_processor_incoming_items\" WHERE \"processor\" =~ /$processor/ AND \"job\" = '$job' AND \"otel_signal\" = 'traces' AND $timeFilter GROUP BY time($__interval), \"processor\"",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Incoming: {{processor}} {{service_instance_id}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT -sum(\"value\") AS \"Outgoing\" FROM \"otelcol_processor_outgoing_items\" WHERE \"processor\" =~ /$processor/ AND \"job\" = '$job' AND \"otel_signal\" = 'traces' AND $timeFilter GROUP BY time($__interval), \"processor\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Outgoing: {{processor}} {{service_instance_id}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Spans ${metric:text}",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Refused.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Dropped.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 10
+      },
+      "id": 83,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Incoming\" FROM \"otelcol_processor_incoming_items\" WHERE \"processor\" =~ /$processor/ AND \"job\" = '$job' AND \"otel_signal\" = 'metrics' AND $timeFilter GROUP BY time($__interval), \"processor\"",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Incoming: {{processor}} {{service_instance_id}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT -sum(\"value\") AS \"Outgoing\" FROM \"otelcol_processor_outgoing_items\" WHERE \"processor\" =~ /$processor/ AND \"job\" = '$job' AND \"otel_signal\" = 'metrics' AND $timeFilter GROUP BY time($__interval), \"processor\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Outgoing: {{processor}} {{service_instance_id}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Metric Points ${metric:text}",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Refused.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Dropped.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 10
+      },
+      "id": 84,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Incoming\" FROM \"otelcol_processor_incoming_items\" WHERE \"processor\" =~ /$processor/ AND \"job\" = '$job' AND \"otel_signal\" = 'logs' AND $timeFilter GROUP BY time($__interval), \"processor\"",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Incoming: {{processor}} {{service_instance_id}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT -sum(\"value\") AS \"Outgoing\" FROM \"otelcol_processor_outgoing_items\" WHERE \"processor\" =~ /$processor/ AND \"job\" = '$job' AND \"otel_signal\" = 'logs' AND $timeFilter GROUP BY time($__interval), \"processor\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Outgoing: {{processor}} {{service_instance_id}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Logs Records Rate ${metric:text}",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "Accepted: count/rate of spans successfully pushed into the next component in the pipeline.\nRefused: count/rate of spans that were rejected by the next component in the pipeline.\nDropped: count/rate of spans that were dropped",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Refused.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 18
+      },
+      "id": 35,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Accepted\" FROM \"otelcol_processor_accepted_spans\" WHERE \"processor\" =~ /$processor/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"processor\"",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Accepted: {{processor}} {{service_instance_id}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Refused\" FROM \"otelcol_processor_refused_spans\" WHERE \"processor\" =~ /$processor/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"processor\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Refused: {{processor}} {{service_instance_id}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Dropped\" FROM \"otelcol_processor_dropped_spans\" WHERE \"processor\" =~ /$processor/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"processor\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Dropped: {{processor}} {{service_instance_id}}",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Spans ${metric:text}",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "Accepted: count/rate of metric points successfully pushed into the next component in the pipeline.\nRefused: count/rate of metric points that were rejected by the next component in the pipeline.\nDropped: count/rate of metric points that were dropped",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Refused.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Dropped.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 18
+      },
+      "id": 50,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Accepted\" FROM \"otelcol_processor_accepted_metric_points\" WHERE \"processor\" =~ /$processor/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"processor\"",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Accepted: {{processor}} {{service_instance_id}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Refused\" FROM \"otelcol_processor_refused_metric_points\" WHERE \"processor\" =~ /$processor/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"processor\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Refused: {{processor}} {{service_instance_id}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Dropped\" FROM \"otelcol_processor_dropped_metric_points\" WHERE \"processor\" =~ /$processor/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"processor\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Dropped: {{processor}}",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Metric Points ${metric:text}",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "Sent: count/rate of log records successfully pushed into destination.\nEnqueue: count/rate of log records failed to be added to the sending queue.\nFailed: count/rate of log records in failed attempts to send to destination.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Failed:.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 35
+      },
+      "id": 38,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Sent\" FROM \"otelcol_exporter_sent_metric_points\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Sent: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Enqueue\" FROM \"otelcol_exporter_enqueue_failed_metric_points\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Enqueue: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Failed\" FROM \"otelcol_exporter_send_failed_metric_points\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Failed: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Metric Points ${metric:text}",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "Sent: count/rate of log records successfully sent to destination.\nEnqueue: count/rate of log records failed to be added to the sending queue.\nFailed: count/rate of log records in failed attempts to send to destination.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Failed:.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 35
+      },
+      "id": 48,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Sent\" FROM \"otelcol_exporter_sent_log_records\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Sent: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Enqueue\" FROM \"otelcol_exporter_enqueue_failed_log_records\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Enqueue: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Failed\" FROM \"otelcol_exporter_send_failed_log_records\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Failed: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Log Records ${metric:text}",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "Current size of the retry queue (in batches)",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          },
+          "links": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 44
+      },
+      "id": 10,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"RetryQueueSize\" FROM \"otelcol_processor_retry_queue_current_size\" WHERE $timeFilter GROUP BY time($__interval)",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Retry Queue Size",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Retry Queue Size",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "id": 25,
+      "panels": [],
+      "title": "Exporters",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "Sent: count/rate of spans successfully sent to destination.\nEnqueue: count/rate of spans failed to be added to the sending queue.\nFailed: count/rate of spans in failed attempts to send to destination.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Failed:.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 35
+      },
+      "id": 37,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Sent\" FROM \"otelcol_exporter_sent_spans\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Sent: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Enqueue\" FROM \"otelcol_exporter_enqueue_failed_spans\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Enqueue: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Failed\" FROM \"otelcol_exporter_send_failed_spans\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Failed: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Spans ${metric:text}",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "Sent: count/rate of metric points successfully sent to destination.\nEnqueue: count/rate of metric points failed to be added to the sending queue.\nFailed: count/rate of metric points in failed attempts to send to destination.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Failed:.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 35
+      },
+      "id": 38,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Sent\" FROM \"otelcol_exporter_sent_metric_points\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Sent: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Enqueue\" FROM \"otelcol_exporter_enqueue_failed_metric_points\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Enqueue: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Failed\" FROM \"otelcol_exporter_send_failed_metric_points\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Failed: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Metric Points ${metric:text}",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$datasource"
+      },
+      "description": "Sent: count/rate of log records successfully sent to destination.\nEnqueue: count/rate of log records failed to be added to the sending queue.\nFailed: count/rate of log records in failed attempts to send to destination.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Failed:.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 35
+      },
+      "id": 48,
+      "interval": "$minstep",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Sent\" FROM \"otelcol_exporter_sent_log_records\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Sent: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Enqueue\" FROM \"otelcol_exporter_enqueue_failed_log_records\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Enqueue: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "SELECT sum(\"value\") AS \"Failed\" FROM \"otelcol_exporter_send_failed_log_records\" WHERE \"exporter\" =~ /$exporter/ AND \"job\" = '$job' AND $timeFilter GROUP BY time($__interval), \"exporter\"",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$minstep",
+          "intervalFactor": 1,
+          "legendFormat": "Failed: {{exporter}} {{service_instance_id}}",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Log Records ${metric:text}",
+      "type": "timeseries"
+    }
+  ]
+}
