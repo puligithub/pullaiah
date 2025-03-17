@@ -75,3 +75,87 @@ spec:
       - log.dirs=/tmp/kraft-combined-logs
       # Unique cluster identifier (must match the controller’s cluster.id)
       - cluster.id=MkU3OEVBNTcwNTJENDM2Qk
+
+
+
+$ cat claude_kraft1.yaml
+apiVersion: platform.confluent.io/v1beta1
+kind: KRaftController
+metadata:
+  name: kcontroller
+  namespace: confluent
+spec:
+  replicas: 1  # Start with a single node for simplicity
+  image:
+    application: confluentinc/cp-server:7.9.0
+    init: confluentinc/confluent-init-container:2.11.0
+  dataVolumeCapacity: "10Gi"
+  podTemplate:
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+  configOverrides:
+    server:
+      - process.roles=controller
+      - node.id=0
+      - broker.id=0
+      - controller.listener.names=CONTROLLER
+      - listeners=CONTROLLER://0.0.0.0:29093
+      - advertised.listeners=CONTROLLER://kcontroller-0.kcontroller.confluent.svc.cluster.local:29093
+      - controller.quorum.voters=0@kcontroller-0.kcontroller.confluent.svc.cluster.local:29093
+      - log.dirs=/var/lib/kafka/data
+      - cluster.id=MkU3OEVBNTcwNTJENDM2Qk
+
+
+$ cat chatgpt_1kafka.yaml
+apiVersion: platform.confluent.io/v1beta1
+kind: Kafka
+metadata:
+  name: kafka
+  namespace: confluent
+spec:
+  replicas: 1
+  image:
+    application: confluentinc/cp-server:7.9.0
+    init: confluentinc/confluent-init-container:2.11.0
+  dataVolumeCapacity: "10Gi"
+  podTemplate:
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+  configOverrides:
+    server:
+      - node.id=1
+      - broker.id=1
+      - cluster.id=MkU3OEVBNTcwNTJENDM2Qk
+      - process.roles=broker
+      - listener.security.protocol.map=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      - listeners=PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+      - advertised.listeners=PLAINTEXT://kafka-0.kafka-headless.confluent.svc.cluster.local:29092,PLAINTEXT_HOST://kafka.confluent.svc.cluster.local:9092
+      - bootstrap.servers=kcontroller-0.kcontroller.confluent.svc.cluster.local:29093
+      - offsets.topic.replication.factor=1
+      - group.initial.rebalance.delay.ms=0
+      - transaction.state.log.min.isr=1
+      - transaction.state.log.replication.factor=1
+      - inter.broker.listener.name=PLAINTEXT
+      - log.dirs=/var/lib/kafka/data
+      - kraft.controller.reconnect.backoff.ms=5000
+      - kraft.controller.reconnect.backoff.max.ms=30000
+      - controller.socket.timeout.ms=60000
+      - controller.quorum.request.timeout.ms=60000
+      - confluent.telemetry.enabled=false
+      - confluent.reporters.telemetry.enabled=false
+      # - confluent.telemetry.reporter.bootstrap.servers=localhost:9092   <-- Removed for now
+    jvm:
+      - -Djava.net.preferIPv4Stack=true
+
+
+
