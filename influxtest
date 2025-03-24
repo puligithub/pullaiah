@@ -1,0 +1,11 @@
+from(bucket: "otel-metrics")
+  |> range(start: -1h)
+  |> filter(fn: (r) => 
+      r._measurement == "otelcol_exporter_sent_spans" or
+      r._measurement == "otelcol_exporter_send_failed_spans"
+  |> aggregateWindow(every: 1m, fn: sum)
+  |> pivot(rowKey:["_time"], columnKey: ["_measurement"], valueColumn: "_value")
+  |> map(fn: (r) => ({ 
+      _time: r._time, 
+      success_rate: (r.otelcol_exporter_sent_spans - r.otelcol_exporter_send_failed_spans) / r.otelcol_exporter_sent_spans * 100 
+  }))
