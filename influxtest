@@ -9,3 +9,79 @@ from(bucket: "otel-metrics")
       _time: r._time, 
       success_rate: (r.otelcol_exporter_sent_spans - r.otelcol_exporter_send_failed_spans) / r.otelcol_exporter_sent_spans * 100 
   }))
+
+
+
+from(bucket: "otel-metrics")
+  |> range(start: -1h)
+  |> filter(fn: (r) => 
+      r._measurement == "otelcol_exporter_sent_metrics" or
+      r._measurement == "otelcol_exporter_send_failed_metrics"
+  )
+  |> aggregateWindow(every: 1m, fn: sum)
+  |> pivot(rowKey:["_time"], columnKey: ["_measurement"], valueColumn: "_value")
+  |> map(fn: (r) => ({
+      _time: r._time,
+      success_rate: ((r.otelcol_exporter_sent_metrics - r.otelcol_exporter_send_failed_metrics) / (r.otelcol_exporter_sent_metrics + 0.000001)) * 100
+  }))
+
+
+
+from(bucket: "otel-metrics")
+  |> range(start: -15m)
+  |> filter(fn: (r) => 
+      r._measurement == "otelcol_exporter_queue_size" or
+      r._measurement == "otelcol_exporter_queue_capacity"
+  )
+  |> pivot(rowKey:["_time"], columnKey: ["_measurement"], valueColumn: "_value")
+  |> map(fn: (r) => ({
+      _time: r._time,
+      utilization_pct: (r.otelcol_exporter_queue_size / r.otelcol_exporter_queue_capacity) * 100
+  }))
+
+
+
+from(bucket: "otel-metrics")
+  |> range(start: -6h)
+  |> filter(fn: (r) => 
+      r._measurement == "otelcol_exporter_enqueue_retries"
+  )
+  |> aggregateWindow(every: 5m, fn: sum)
+
+
+
+from(bucket: "otel-metrics")
+  |> range(start: -1h)
+  |> filter(fn: (r) => 
+      r._measurement == "otelcol_exporter_send_latency"
+  )
+  |> aggregateWindow(every: 1m, fn: mean)
+
+
+
+// Queue Status
+queue_data = from(bucket: "otel-metrics")
+  |> range(start: -1h)
+  |> filter(fn: (r) => 
+      r._measurement == "otelcol_exporter_queue_size" or
+      r._measurement == "otelcol_exporter_queue_capacity"
+  )
+  |> aggregateWindow(every: 1m, fn: last)
+
+// Send Attempts
+send_data = from(bucket: "otel-metrics")
+  |> range(start: -1h)
+  |> filter(fn: (r) => 
+      r._measurement == "otelcol_exporter_sent_metrics" or
+      r._measurement == "otelcol_exporter_send_failed_metrics"
+  )
+  |> aggregateWindow(every: 1m, fn: sum)
+
+union(tables: [queue_data, send_data])
+  |> pivot(rowKey:["_time"], columnKey: ["_measurement"], valueColumn: "_value")
+  |> map(fn: (r) => ({
+      _time: r._time,
+      queue_used: r.otelcol_exporter_queue_size,
+      queue_total: r.otelcol_exporter_queue_capacity,
+      success_rate: ((r.otelcol_exporter_sent_metrics - (r.otelcol_exporter_send_failed_metrics or 0.0)) / (r.otelcol_exporter_sent_metrics + 0.000001) * 100
+  }))
