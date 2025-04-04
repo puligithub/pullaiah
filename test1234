@@ -157,5 +157,79 @@ spec:
     jvm:
       - -Djava.net.preferIPv4Stack=true
 
+============================
+
+
+from(bucket: "otel-metrics")
+  |> range(start: -1h)
+  |> filter(fn: (r) => r._measurement == "otelcol_exporter_sent_metric_points")
+  |> filter(fn: (r) => r._field == "_value")
+  |> aggregateWindow(every: 1m, fn: mean)
+  |> yield(name: "mean")
+
+from(bucket: "otel-metrics")
+  |> range(start: $__range)
+  |> filter(fn: (r) => r._measurement == "otelcol_exporter_sent_metric_points")
+  |> filter(fn: (r) => r._field == "_value")
+  |> aggregateWindow(every: $__interval, fn: sum)
+  |> yield(name: "sum")
+
+ _measurement == "otelcol_exporter_send_failed_metric_points"
+
+
+queue_size = from(bucket: "otel-metrics")
+  |> range(start: $__range)
+  |> filter(fn: (r) => r._measurement == "otelcol_exporter_queue_size")
+  |> filter(fn: (r) => r._field == "_value")
+
+queue_capacity = from(bucket: "otel-metrics")
+  |> range(start: $__range)
+  |> filter(fn: (r) => r._measurement == "otelcol_exporter_queue_capacity")
+  |> filter(fn: (r) => r._field == "_value")
+
+join(
+  tables: {size: queue_size, capacity: queue_capacity},
+  on: ["_time"]
+)
+|> map(fn: (r) => ({
+  _time: r._time,
+  _value: float(v: r._value_size) / float(v: r._value_capacity) * 100.0
+}))
+
+
+
+from(bucket: "otel-metrics")
+  |> range(start: $__range)
+  |> filter(fn: (r) => r._measurement == "otelcol_receiver_accepted_metric_points" or r._measurement == "otelcol_receiver_refused_metric_points")
+  |> filter(fn: (r) => r._field == "_value")
+  |> aggregateWindow(every: $__interval, fn: sum)
+  |> group(columns: ["_measurement"])
+  |> yield(name: "stacked")
+
+
+from(bucket: "otel-metrics")
+  |> range(start: $__range)
+  |> filter(fn: (r) => r._measurement == "otelcol_processor_batch_batch_send_size")
+  |> filter(fn: (r) => r._field == "_value")
+  |> aggregateWindow(every: $__interval, fn: mean)
+
+
+
+from(bucket: "otel-metrics")
+  |> range(start: $__range)
+  |> filter(fn: (r) =>
+    r._measurement == "otelcol_fileconsumer_open_files" or
+    r._measurement == "otelcol_fileconsumer_reading_files")
+  |> filter(fn: (r) => r._field == "_value")
+  |> aggregateWindow(every: $__interval, fn: mean)
+  |> group(columns: ["_measurement"])
+
+
+from(bucket: "otel-metrics")
+  |> range(start: $__range)
+  |> filter(fn: (r) => r._measurement == "otelcol_process_cpu_seconds")
+  |> filter(fn: (r) => r._field == "_value")
+  |> derivative(unit: 1s, nonNegative: true)
+  |> aggregateWindow(every: $__interval, fn: mean)
 
 
