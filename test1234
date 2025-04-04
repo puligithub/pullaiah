@@ -233,3 +233,25 @@ from(bucket: "otel-metrics")
   |> aggregateWindow(every: $__interval, fn: mean)
 
 
+
+sumData = from(bucket: "OtelobservabilityPoC")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["measurement"] == "otelcol_processor_batch_batch_send_size")
+  |> filter(fn: (r) => r["_field"] == "sum")
+  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
+
+countData = from(bucket: "OtelobservabilityPoC")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["measurement"] == "otelcol_processor_batch_batch_send_size")
+  |> filter(fn: (r) => r["_field"] == "count")
+  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
+
+join(
+  tables: {sum: sumData, count: countData},
+  on: ["_time"]
+)
+|> map(fn: (r) => ({ 
+    r with 
+    _value: r._value_sum / r._value_count 
+}))
+|> yield(name: "batch_send_size_avg")
