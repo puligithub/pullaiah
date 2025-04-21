@@ -6,13 +6,13 @@
 
 ---
 
-> IBM ESA Container runs in GKE, collects hardware metrics via SNMP.
+**> IBM ESA Container runs in GKE, collects hardware metrics via SNMP.
 
 > Splunk Dashboard visualizes health and triggers alerts.
 
 > Python Script ingests alerts and auto‑creates ServiceNow incidents.
 
-> Multi‑Zone GKE for high availability and region‑spanning coverage.
+> Multi‑Zone GKE for high availability and region‑spanning coverage.**
 
 ---
  **Tools & Technologies** 
@@ -81,6 +81,8 @@ A clear, top‑level layout guides contributors—mirroring industry conventions
 
 ├── README.md ← Project overview (this file) ├── docs/ ← Architecture & Agile process details │ ├── architecture.md │ └── agile_process.md ├── k8s/ ← Kubernetes manifests & configs │ └── deployment.yaml ├── scripts/ ← Automation & incident logic │ └── create_incident.py └── LICENSE ←
 
+---
+
 ## 🔥 Highlights & Importance
 
 > **IMPORTANT**  
@@ -88,9 +90,6 @@ A clear, top‑level layout guides contributors—mirroring industry conventions
 > - **Agentless SNMP:** Supported Dell, HP, and Lenovo servers without installing host agents.  
 > - **Multi‑Region HA:** GKE multi‑zone clusters ensure failover and resilience.  
 > - **Vendor Collaboration:** Partnered with IBM ESA beta team for product hardening and feature stabilization.
-
----
-
 
 ---
 
@@ -122,7 +121,7 @@ python3 scripts/create_incident.py --alert-id <ALERT_ID>
 
 # 4. View dashboards
 #    - Login to Splunk → Dashboards → “Physical Servers Health”
-
+```
 ---
 
 ## 🏗️ Architecture & Design
@@ -159,6 +158,7 @@ flowchart LR
   SNMP -->|HW events & Alerts Forwarding| InternalProxy
 
   subgraph "IBM Proxy & Portal"
+```
     IBMProxy["IBM Proxy"]
     IBMPortal["IBM Vendor Portal"]
     IBMProxy --> IBMPortal
