@@ -124,6 +124,16 @@ python3 scripts/create_incident.py --alert-id <ALERT_ID>
 ```
 ---
 
+**Key citations used**:
+
+- **Tools & Tech**: Best‑README templates show concise prerequisites lists :contentReference[oaicite:8]{index=8}.  
+- **File Structure**: Folder conventions for clear top‑level layouts :contentReference[oaicite:9]{index=9}.  
+- **Implementation**: Emphasize “write README first” and stepwise delivery :contentReference[oaicite:10]{index=10}.  
+- **Usage**: “Getting Started” sections streamline onboarding :contentReference[oaicite:11]{index=11}.
+::contentReference[oaicite:12]{index=12}
+
+---
+
 ## 🏗️ Architecture & Design
 
 ```mermaid
