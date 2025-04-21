@@ -15,19 +15,20 @@
 > Multi‑Zone GKE for high availability and region‑spanning coverage.
 
  **Tools & Technologies** 
-IBM ESA (beta container image)
 
-Google Kubernetes Engine (GKE) – multi‑zone clusters
+> IBM ESA (beta container image)
 
-SNMP – agentless polling across platforms
+> Google Kubernetes Engine (GKE) – multi‑zone clusters
 
-Splunk Infrastructure Monitoring – centralized dashboard & alerting
+> SNMP – agentless polling across platforms
 
-ServiceNow API – incident creation via Python scripts
+> Splunk Infrastructure Monitoring – centralized dashboard & alerting
 
-Jenkins – CI/CD for image scanning & deployment
+> ServiceNow API – incident creation via Python scripts
 
-SRE Practices – SLO tracking, MTTR metrics, retrospectives
+> Jenkins – CI/CD for image scanning & deployment
+
+> SRE Practices – SLO tracking, MTTR metrics, retrospectives
 
 **File structure**
 
