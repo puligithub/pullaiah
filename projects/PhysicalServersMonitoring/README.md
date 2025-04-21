@@ -83,15 +83,32 @@ We followed a **Scrum‑style Agile** approach over a **12‑month** engagement,
 
 ```mermaid
 flowchart LR
-  subgraph GKE Cluster
-    ESA[IBM ESA Container]
-    SNMP[SNMP Polling]
-    ESAdash[Splunk Dashboard]
-    ESASNOW[ServiceNow API Script]
-    ESA --> SNMP
+  subgraph "GKE Cluster"
+    ESA["IBM ESA Container"]
+    SNMP["SNMP Polling"]
+    ESAdash["Splunk Dashboard"]
+    ESASNOW["ServiceNow API Script"]
+    ESA -->|SNMP Polling| SNMP
     ESA --> ESAdash
     ESA --> ESASNOW
   end
 
-  UserOps[IT Ops Team] --> ESAdash
-  Vendor[Hardware Vendor] --> ESASNOW
+  subgraph "Physical Servers"
+    DELL["DELL Server"]
+    HP["HP Server"]
+    LENOVO["LENOVO Server"]
+  end
+
+  DELL ---|SSH, SNMP, HTTPS| ESA
+  HP  ---|SSH, SNMP, HTTPS| ESA
+  LENOVO ---|SSH, SNMP, HTTPS| ESA
+
+  subgraph "Vendor Case & Logs Proxy"
+    Proxy["Proxy Service"]
+    IBM["IBM Vendor Portal"]
+  end
+
+  ESASNOW --> Proxy
+  ESA      --> Proxy
+  SNMP     --> Proxy
+  Proxy    --> IBM
