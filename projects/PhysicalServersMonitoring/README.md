@@ -99,17 +99,18 @@ flowchart LR
     LENOVO["LENOVO Server"]
   end
 
-  DELL ---|SSH, SNMP, HTTPS| ESA
-  HP   ---|SSH, SNMP, HTTPS| ESA
-  LENOVO ---|SSH, SNMP, HTTPS| ESA
+  DELL <--->|SSH, SNMP, Logs via HTTPS| ESA
+  HP   <--->|SSH, SNMP, Logs via HTTPS| ESA
+  LENOVO <--->|SSH, SNMP, logs via HTTPS| ESA
 
   subgraph "On‑Estate Proxy"
     InternalProxy["Internal Proxy Server"]
   end
 
-  ESA -->|Incident & Log Forwarding| InternalProxy
-  ESASNOW -->|API Calls| InternalProxy
-  SNMP -->|Alert Forwarding| InternalProxy
+  ESA -->|Incident events Forwarding| ESAdash
+  ESA -->| Logs | InternalProxy
+  ESASNOW <-->|API Calls| ESA
+  SNMP -->|HW events & Alerts Forwarding| InternalProxy
 
   subgraph "IBM Proxy & Portal"
     IBMProxy["IBM Proxy"]
