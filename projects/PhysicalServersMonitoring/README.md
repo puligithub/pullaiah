@@ -6,6 +6,40 @@
 
 ---
 
+> IBM ESA Container runs in GKE, collects hardware metrics via SNMP.
+
+> Splunk Dashboard visualizes health and triggers alerts.
+
+> Python Script ingests alerts and auto‑creates ServiceNow incidents.
+
+> Multi‑Zone GKE for high availability and region‑spanning coverage.
+
+ **Tools & Technologies** 
+IBM ESA (beta container image)
+
+Google Kubernetes Engine (GKE) – multi‑zone clusters
+
+SNMP – agentless polling across platforms
+
+Splunk Infrastructure Monitoring – centralized dashboard & alerting
+
+ServiceNow API – incident creation via Python scripts
+
+Jenkins – CI/CD for image scanning & deployment
+
+SRE Practices – SLO tracking, MTTR metrics, retrospectives
+
+**File structure**
+
+README.md               ← This file
+docs/
+  architecture.md       ← Detailed architecture diagrams
+  agile_process.md      ← Sprint backlogs & retrospectives
+scripts/
+  create_incident.py    ← ServiceNow integration logic
+k8s/
+  deployment.yaml       ← GKE manifests & configs
+  
 ## 📋 Agile Process
 
 We followed a **Scrum‑style Agile** approach over a **12‑month** engagement, delivering in two‑week sprints:
