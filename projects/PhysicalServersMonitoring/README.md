@@ -100,15 +100,21 @@ flowchart LR
   end
 
   DELL ---|SSH, SNMP, HTTPS| ESA
-  HP  ---|SSH, SNMP, HTTPS| ESA
+  HP   ---|SSH, SNMP, HTTPS| ESA
   LENOVO ---|SSH, SNMP, HTTPS| ESA
 
-  subgraph "Vendor Case & Logs Proxy"
-    Proxy["Proxy Service"]
-    IBM["IBM Vendor Portal"]
+  subgraph "On‑Estate Proxy"
+    InternalProxy["Internal Proxy Server"]
   end
 
-  ESASNOW --> Proxy
-  ESA      --> Proxy
-  SNMP     --> Proxy
-  Proxy    --> IBM
+  ESA -->|Incident & Log Forwarding| InternalProxy
+  ESASNOW -->|API Calls| InternalProxy
+  SNMP -->|Alert Forwarding| InternalProxy
+
+  subgraph "IBM Proxy & Portal"
+    IBMProxy["IBM Proxy"]
+    IBMPortal["IBM Vendor Portal"]
+    IBMProxy --> IBMPortal
+  end
+
+  InternalProxy -->|HTTPS| IBMProxy
