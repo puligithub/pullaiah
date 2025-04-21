@@ -158,7 +158,7 @@ flowchart LR
   SNMP -->|HW events & Alerts Forwarding| InternalProxy
 
   subgraph "IBM Proxy & Portal"
-```
+
     IBMProxy["IBM Proxy"]
     IBMPortal["IBM Vendor Portal"]
     IBMProxy --> IBMPortal
