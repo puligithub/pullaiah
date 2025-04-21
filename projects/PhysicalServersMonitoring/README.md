@@ -23,12 +23,12 @@ We followed a **Scrum‑style Agile** approach over a **12‑month** engagement,
 
 ## 🗓️ Project Timeline
 
-| Sprint  | Dates               | Key Deliverables                              |
-|:-------:|---------------------|-----------------------------------------------|
-| 1–2     | Apr – May 2023      | GKE cluster provisioning; IBM ESA beta deploy |
-| 3–6     | Jun – Aug 2023      | SNMP polling; Splunk dashboard MVP            |
-| 7–10    | Sep – Nov 2023      | ServiceNow API scripts; incident routing      |
-| 11–12   | Dec 2023 – Mar 2024 | Multi‑region rollout; performance hardening   |
+| Sprint  | Dates    | Key Deliverables                              |
+|:-------:|----------|-----------------------------------------------|
+| 1–2     |NA      | GKE cluster provisioning; IBM ESA beta deploy |
+| 3–6     | JNA    | SNMP polling; Splunk dashboard MVP            |
+| 7–10    | NA     | ServiceNow API scripts; incident routing      |
+| 11–12   | NA     | Multi‑region rollout; performance hardening   |
 
 > _Each sprint spanned two weeks, enabling rapid feedback and continuous improvement._
 
