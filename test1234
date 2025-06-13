@@ -255,3 +255,62 @@ join(
     _value: r._value_sum / r._value_count 
 }))
 |> yield(name: "batch_send_size_avg")
+
+
+
+
+
+
+
++++++
+
+flowchart TD
+  %% Style definitions
+  classDef host fill:#cce5ff,stroke:#004085,stroke-width:2,rx:10,ry:10
+  classDef gateway fill:#d4edda,stroke:#155724,stroke-width:2,rx:10,ry:10
+  classDef kafka fill:#fff3cd,stroke:#856404,stroke-width:2,rx:10,ry:10
+  classDef influx fill:#f8d7da,stroke:#721c24,stroke-width:2,rx:10,ry:10
+  classDef grafana fill:#e2e3e5,stroke:#383d41,stroke-width:2,rx:10,ry:10
+
+  %% Nodes
+  subgraph LWH["Linux & Windows Host"]
+    A1[Otel Agent process]:::host
+    A2[Host metrics]:::host
+    A3[Otel Agent metrics<br/>(Internal telemetry)]:::host
+  end
+
+  subgraph GS["Gateway servers"]
+    B1[Host Metrics]:::gateway
+    B2[Internal telemetry Metrics]:::gateway
+  end
+
+  subgraph KAFKA["Kafka"]
+    C1[Host metrics Kafka topics]:::kafka
+    C2[Internal telemetry Kafka topics]:::kafka
+  end
+
+  subgraph INF["InfluxDB + Telegraf"]
+    D1[Host Metrics Bucket]:::influx
+    D2[Internal telemetry Metrics Bucket]:::influx
+  end
+
+  subgraph GRAF["Grafana GUI"]
+    E1[Host Metrics]:::grafana
+    E2[Agent Observability metrics]:::grafana
+  end
+
+  %% Data flow
+  A1 -->|Generates| A2
+  A1 -->|Generates| A3
+
+  A2 -->|Sends to| B1
+  A3 -->|Sends to| B2
+
+  B1 -->|Publishes to| C1
+  B2 -->|Publishes to| C2
+
+  C1 -->|Streams to| D1
+  C2 -->|Streams to| D2
+
+  D1 -->|Visualized in| E1
+  D2 -->|Visualized in| E2
