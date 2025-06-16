@@ -6,13 +6,6 @@
 
 This project demonstrates a complete OpenTelemetry (OTel) observability pipeline that implements **"observability of observability"** - monitoring both your infrastructure AND your monitoring components themselves.
 
-## 🚀 Quick View Links
-
-**Immediate Preview Options:**
-
-1. **[📱 HTML Preview Service]([https://htmlpreview.github.io/?https://github.com/yourusername/otel-observability-flow/blob/main/index.html](https://github.com/puligithub/pullaiah/blob/f8b53787ca2344c762290e4e283f77a54ce4b41d/projects/Observability%20of%20Observability/index.html)** - Click to view now
-2. **[⚡ GitHack]([https://raw.githack.com/yourusername/otel-observability-flow/main/index.html](https://github.com/puligithub/pullaiah/blob/f8b53787ca2344c762290e4e283f77a54ce4b41d/projects/Observability%20of%20Observability/index.html)** - Alternative viewer
-3. **[🌐 GitHub Pages]([https://yourusername.github.io/otel-observability-flow/](https://github.com/puligithub/pullaiah/blob/f8b53787ca2344c762290e4e283f77a54ce4b41d/projects/Observability%20of%20Observability/)** - Best experience (setup required)
 
 ## 🌐 View Options
 
