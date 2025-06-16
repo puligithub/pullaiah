@@ -14,6 +14,14 @@ This project demonstrates a complete OpenTelemetry (OTel) observability pipeline
 2. **[⚡ GitHack]([https://raw.githack.com/yourusername/otel-observability-flow/main/index.html](https://github.com/puligithub/pullaiah/blob/f8b53787ca2344c762290e4e283f77a54ce4b41d/projects/Observability%20of%20Observability/index.html)** - Alternative viewer
 3. **[🌐 GitHub Pages]([https://yourusername.github.io/otel-observability-flow/](https://github.com/puligithub/pullaiah/blob/f8b53787ca2344c762290e4e283f77a54ce4b41d/projects/Observability%20of%20Observability/)** - Best experience (setup required)
 
+ ## 🌐 View Options
+
+| Method | Link | Description |
+|--------|------|-------------|
+| **GitHub Pages** | [Live Demo](https://yourusername.github.io/repo-name/) | Best experience |
+| **Raw HTML Preview** | [HTMLPreview](projects/Observability of Observability/index.html) | Quick preview |
+| **GitHack** | [GitHack](projects/Observability of Observability/index.html) | Alternative preview |
+
    
 ### 🔑 Key Point: Dual Collection Strategy
 
