@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenTelemetry Observability Flow - Confluence Safe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #0052cc;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        .flow-diagram {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .component-row {
+            display: table;
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: separate;
+            border-spacing: 10px;
+        }
+        
+        .component {
+            display: table-cell;
+            vertical-align: top;
+            border: 2px solid #0052cc;
+            border-radius: 6px;
+            padding: 15px;
+            background: #f4f7ff;
+            width: 30%;
+        }
+        
+        .component.gateway {
+            border-color: #ff8c00;
+            background: #fff7e6;
+        }
+        
+        .component.storage {
+            border-color: #d04437;
+            background: #ffebe6;
+        }
+        
+        .component.viz {
+            border-color: #36b37e;
+            background: #e6fcf5;
+        }
+        
+        .component.load-balancer {
+            border-color: #00b8d9;
+            background: #e6f7ff;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .component-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #0052cc;
+        }
+        
+        .gateway .component-title {
+            color: #ff8c00;
+        }
+        
+        .storage .component-title {
+            color: #d04437;
+        }
+        
+        .viz .component-title {
+            color: #36b37e;
+        }
+        
+        .load-balancer .component-title {
+            color: #00b8d9;
+        }
+        
+        .metric-section {
+            margin: 10px 0;
+            padding: 8px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .metric-type {
+            font-weight: bold;
+            color: #0052cc;
+            margin-bottom: 5px;
+        }
+        
+        .metric-list {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .flow-arrow {
+            text-align: center;
+            font-size: 24px;
+            color: #0052cc;
+            margin: 10px 0;
+        }
+        
+        .flow-legend {
+            background: #f4f7ff;
+            border: 1px solid #0052cc;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .legend-title {
+            font-weight: bold;
+            color: #0052cc;
+            margin-bottom: 10px;
+        }
+        
+        .legend-item {
+            margin: 5px 0;
+            display: block;
+        }
+        
+        .legend-color {
+            display: inline-block;
+            width: 20px;
+            height: 3px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        .host-metrics { background-color: #36b37e; }
+        .internal-telemetry { background-color: #ff8c00; }
+        .latency-tracking { background-color: #d04437; }
+        
+        .metrics-table {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .metrics-grid {
+            display: table;
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 10px;
+        }
+        
+        .metric-category {
+            display: table-cell;
+            vertical-align: top;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            width: 16%;
+        }
+        
+        .metric-category h4 {
+            color: #ff8c00;
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        
+        .metric-category code {
+            background: #f4f4f4;
+            padding: 1px 3px;
+            border-radius: 2px;
+            font-family: monospace;
+            font-size: 11px;
+            display: block;
+            margin: 2px 0;
+        }
+        
+        .timestamp-info {
+            background: #fff7e6;
+            border: 1px solid #ff8c00;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .architecture-note {
+            background: #e6f7ff;
+            border: 1px solid #00b8d9;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OpenTelemetry Observability of Observability</h1>
+        <p class="subtitle">Comprehensive Flow: Host Metrics + Full Internal Telemetry (Receivers, Exporters, Queues, Processors)</p>
+        
+        <div class="architecture-note">
+            <div class="legend-title">Key Architecture</div>
+            <p>• Scalable: N servers → Load Balancer<br>
+            • Distributed: N gateway collectors<br>
+            • <strong>Full observability at every layer</strong></p>
+        </div>
+        
+        <div class="flow-diagram">
+            <!-- Source Servers -->
+            <div class="component-row">
+                <div class="component">
+                    <div class="component-title">Server 1 (OTel Agent)</div>
+                    <div class="metric-section">
+                        <div class="metric-type">Host Metrics</div>
+                        <div class="metric-list">• CPU, Memory, Disk, Network<br>• Filesystem, Load, etc.</div>
+                    </div>
+                    <div class="metric-section">
+                        <div class="metric-type">OTel Agent Internal Telemetry</div>
+                        <div class="metric-list">
+                            <strong>Receivers:</strong><br>
+                            • accepted/refused_spans<br>
+                            • accepted/refused_metric_points<br>
+                            <strong>Exporters:</strong><br>
+                            • sent/failed_metric_points<br>
+                            • queue_size, queue_capacity<br>
+                            <strong>Process:</strong><br>
+                            • CPU, Memory, Uptime, etc.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="component">
+                    <div class="component-title">Server 2 (OTel Agent)</div>
+                    <div class="metric-section">
+                        <div class="metric-type">Host Metrics</div>
+                        <div class="metric-list">• CPU, Memory, Disk, Network<br>• Process, Services, etc.</div>
+                    </div>
+                    <div class="metric-section">
+                        <div class="metric-type">OTel Agent Internal Telemetry</div>
+                        <div class="metric-list">
+                            <strong>Receivers:</strong><br>
+                            • accepted/refused_spans<br>
+                            • accepted/refused_metric_points<br>
+                            <strong>Exporters:</strong><br>
+                            • sent/failed_metric_points<br>
+                            • queue_size, queue_capacity<br>
+                            <strong>Process:</strong><br>
+                            • CPU, Memory, Uptime, etc.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="component">
+                    <div class="component-title">Server N (OTel Agent)</div>
+                    <div class="metric-section">
+                        <div class="metric-type">Host Metrics</div>
+                        <div class="metric-list">• CPU, Memory, Disk, Network<br>• Custom metrics, etc.</div>
+                    </div>
+                    <div class="metric-section">
+                        <div class="metric-type">OTel Agent Internal Telemetry</div>
+                        <div class="metric-list">
+                            <strong>Receivers:</strong><br>
+                            • accepted/refused_spans<br>
+                            • accepted/refused_metric_points<br>
+                            <strong>Exporters:</strong><br>
+                            • sent/failed_metric_points<br>
+                            • queue_size, queue_capacity<br>
+                            <strong>Process:</strong><br>
+                            • CPU, Memory, Uptime, etc.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-arrow">↓ ↓ ↓</div>
+            
+            <!-- Load Balancer -->
+            <div class="component-row">
+                <div class="component load-balancer">
+                    <div class="component-title">Load Balancer</div>
+                    <div class="metric-list">
+                        • Distributes traffic across gateways<br>
+                        • Health checks & failover<br>
+                        • Round-robin, Least connections, etc.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-arrow">↓ ↓ ↓</div>
+            
+            <!-- Gateway Servers -->
+            <div class="component-row">
+                <div class="component gateway">
+                    <div class="component-title">Gateway Server 1 (OTel Collector)</div>
+                    <div class="metric-type">Functions: Receive → Process → Route</div>
+                    <div class="metric-section">
+                        <div class="metric-type">Gateway Host Metrics</div>
+                        <div class="metric-list">• CPU, Memory, Disk, Network, etc.</div>
+                    </div>
+                    <div class="metric-section">
+                        <div class="metric-type">Collector Internal Telemetry</div>
+                        <div class="metric-list">
+                            <strong>Receivers (OTLP):</strong><br>
+                            • accepted/refused_metric_points<br>
+                            <strong>Processors:</strong><br>
+                            • batch_size, timeout_triggers<br>
+                            • dropped_metric_points<br>
+                            <strong>Exporters (Kafka):</strong><br>
+                            • sent/failed_metric_points<br>
+                            • queue_size, queue_capacity<br>
+                            <strong>Process:</strong><br>
+                            • CPU, Memory, Heap, GC, etc.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="component gateway">
+                    <div class="component-title">Gateway Server 2 (OTel Collector)</div>
+                    <div class="metric-type">Functions: Receive → Process → Route</div>
+                    <div class="metric-section">
+                        <div class="metric-type">Gateway Host Metrics</div>
+                        <div class="metric-list">• CPU, Memory, Disk, Network, etc.</div>
+                    </div>
+                    <div class="metric-section">
+                        <div class="metric-type">Collector Internal Telemetry</div>
+                        <div class="metric-list">
+                            <strong>Receivers (OTLP):</strong><br>
+                            • accepted/refused_metric_points<br>
+                            <strong>Processors:</strong><br>
+                            • batch_size, timeout_triggers<br>
+                            • dropped_metric_points<br>
+                            <strong>Exporters (Kafka):</strong><br>
+                            • sent/failed_metric_points<br>
+                            • queue_size, queue_capacity<br>
+                            <strong>Process:</strong><br>
+                            • CPU, Memory, Heap, GC, etc.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="component gateway">
+                    <div class="component-title">Gateway Server N (OTel Collector)</div>
+                    <div class="metric-type">Functions: Receive → Process → Route</div>
+                    <div class="metric-section">
+                        <div class="metric-type">Gateway Host Metrics</div>
+                        <div class="metric-list">• CPU, Memory, Disk, Network, etc.</div>
+                    </div>
+                    <div class="metric-section">
+                        <div class="metric-type">Collector Internal Telemetry</div>
+                        <div class="metric-list">
+                            <strong>Receivers (OTLP):</strong><br>
+                            • accepted/refused_metric_points<br>
+                            <strong>Processors:</strong><br>
+                            • batch_size, timeout_triggers<br>
+                            • dropped_metric_points<br>
+                            <strong>Exporters (Kafka):</strong><br>
+                            • sent/failed_metric_points<br>
+                            • queue_size, queue_capacity<br>
+                            <strong>Process:</strong><br>
+                            • CPU, Memory, Heap, GC, etc.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-arrow">↓ ↓ ↓</div>
+            
+            <!-- Storage Layer -->
+            <div class="component-row">
+                <div class="component storage">
+                    <div class="component-title">Kafka Cluster</div>
+                    <div class="metric-list">
+                        <strong>Topics:</strong><br>
+                        • host-metrics<br>
+                        • internal-telemetry<br>
+                        • latency-tracking<br>
+                        • etc.<br>
+                        <em>All metrics segregated by type</em>
+                    </div>
+                </div>
+                
+                <div class="component storage">
+                    <div class="component-title">Telegraf + InfluxDB</div>
+                    <div class="metric-list">
+                        • Consumes all Kafka topics<br>
+                        • Calculates end-to-end latency<br>
+                        • Stores time series data<br>
+                        • Custom processing, etc.
+                    </div>
+                    <div class="timestamp-info">
+                        <strong>Latency Calculation:</strong><br>
+                        T2-T1 = source_to_lb<br>
+                        T3-T2 = lb_to_gateway<br>
+                        T6-T1 = total_latency
+                    </div>
+                </div>
+                
+                <div class="component viz">
+                    <div class="component-title">Grafana</div>
+                    <div class="metric-list">
+                        <strong>Dashboards:</strong><br>
+                        • Host Metrics Overview<br>
+                        • Agent/Collector Health<br>
+                        • Queue & Export Stats<br>
+                        • Pipeline Latency, etc.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Timestamp Flow -->
+        <div class="timestamp-info">
+            <strong>Latency Tracking Flow:</strong><br>
+            T1: Created (Source) → T2: LB Received → T3: Gateway Received → T4: Processed → T5: Kafka → T6: Storage
+        </div>
+        
+        <!-- Flow Legend -->
+        <div class="flow-legend">
+            <div class="legend-title">Flow Legend</div>
+            <div class="legend-item">
+                <span class="legend-color host-metrics"></span>
+                Host Metrics Flow (CPU, Memory, Disk, Network from ALL components)
+            </div>
+            <div class="legend-item">
+                <span class="legend-color internal-telemetry"></span>
+                Internal Telemetry Flow (Receivers, Exporters, Queues, Process metrics)
+            </div>
+            <div class="legend-item">
+                <span class="legend-color latency-tracking"></span>
+                Timestamp/Latency Tracking (Added at each stage)
+            </div>
+        </div>
+        
+        <!-- Metrics Reference Table -->
+        <div class="metrics-table">
+            <h3>Internal Telemetry Metrics Reference</h3>
+            <div class="metrics-grid">
+                <div class="metric-category">
+                    <h4>Receiver Metrics</h4>
+                    <code>otelcol_receiver_accepted_spans</code>
+                    <code>otelcol_receiver_refused_spans</code>
+                    <code>otelcol_receiver_accepted_metric_points</code>
+                    <code>otelcol_receiver_refused_metric_points</code>
+                    <em>+ logs, traces, etc.</em>
+                </div>
+                
+                <div class="metric-category">
+                    <h4>Exporter Metrics</h4>
+                    <code>otelcol_exporter_sent_metric_points</code>
+                    <code>otelcol_exporter_send_failed_metric_points</code>
+                    <code>otelcol_exporter_queue_size</code>
+                    <code>otelcol_exporter_queue_capacity</code>
+                    <em>+ spans, logs, etc.</em>
+                </div>
+                
+                <div class="metric-category">
+                    <h4>Processor Metrics</h4>
+                    <code>otelcol_processor_batch_batch_size</code>
+                    <code>otelcol_processor_batch_timeout_trigger_send</code>
+                    <code>otelcol_processor_dropped_metric_points</code>
+                    <em>+ routing, filtering, etc.</em>
+                </div>
+                
+                <div class="metric-category">
+                    <h4>Process/Runtime</h4>
+                    <code>otelcol_process_cpu_seconds</code>
+                    <code>otelcol_process_memory_rss</code>
+                    <code>otelcol_process_uptime</code>
+                    <em>+ heap, GC, threads, etc.</em>
+                </div>
+                
+                <div class="metric-category">
+                    <h4>Queue Metrics</h4>
+                    <code>otelcol_queue_length</code>
+                    <code>otelcol_queue_capacity</code>
+                    <code>otelcol_queue_dropped_items</code>
+                    <em>+ consumers, latency, etc.</em>
+                </div>
+                
+                <div class="metric-category">
+                    <h4>Latency Tracking</h4>
+                    <code>pipeline_stage_latency{stage="..."}</code>
+                    <code>pipeline_total_latency_ms</code>
+                    <code>pipeline_latency_p95, p99</code>
+                    <em>+ custom latency metrics</em>
+                </div>
+            </div>
+        </div>
+        
+        <div class="architecture-note">
+            <strong>Note:</strong> The "etc." throughout indicates extensibility - you can add custom metrics, processors, receivers, and dashboards specific to your organization's needs.
+        </div>
+    </div>
+</body>
+</html>
