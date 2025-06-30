@@ -1,0 +1,671 @@
+# CKA Certification: Complete 1-Month Study Guide & Practice Plan
+
+## 📋 **Latest Exam Information (2025)**
+
+- **Kubernetes Version**: v1.32
+- **Exam Duration**: 2 hours (120 minutes)
+- **Questions**: ~17 performance-based tasks
+- **Passing Score**: 66%
+- **Cost**: $445 USD (includes one free retake)
+- **Format**: Online, proctored, hands-on command-line environment
+- **Open Book**: Access to kubernetes.io documentation allowed
+- **Validity**: 3 years
+
+## 🎯 **Official Curriculum Breakdown**
+
+| Domain | Weight | Focus Areas |
+|--------|--------|-------------|
+| **Troubleshooting** | 30% | Cluster & node issues, networking, monitoring |
+| **Cluster Architecture, Installation & Configuration** | 25% | RBAC, kubeadm, cluster setup, management |
+| **Services & Networking** | 20% | Network policies, ingress, DNS, connectivity |
+| **Workloads & Scheduling** | 15% | Deployments, rolling updates, scheduling |
+| **Storage** | 10% | Persistent volumes, storage classes, dynamic provisioning |
+
+---
+
+## 📅 **30-Day Study Plan (1-2 Hours Daily)**
+
+### **Week 1: Foundation & Cluster Architecture (Days 1-7)**
+*Focus: 25% weightage - Cluster Architecture, Installation & Configuration*
+
+#### **Day 1: Environment Setup & Kubernetes Basics**
+- **Theory (45 min)**: 
+  - Kubernetes architecture overview
+  - Master/worker node components
+  - Control plane components (etcd, kube-apiserver, kube-scheduler, kube-controller-manager)
+- **Hands-on Lab (45 min)**:
+  ```bash
+  # Set up your VM environment with kubeadm
+  sudo apt-get update
+  sudo apt-get install -y docker.io kubeadm kubelet kubectl
+  sudo systemctl enable docker
+  sudo systemctl start docker
+  ```
+- **Practice**: Install kubectl and explore cluster info commands
+
+#### **Day 2: Kubeadm Cluster Setup**
+- **Theory (30 min)**: Kubeadm cluster initialization process
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Initialize cluster
+  sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+  
+  # Configure kubectl
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+  
+  # Install network plugin (Flannel)
+  kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+  ```
+- **Practice Scenario**: Set up a 2-node cluster and verify all components
+
+#### **Day 3: RBAC & Security**
+- **Theory (45 min)**: 
+  - Role-Based Access Control concepts
+  - Users, Groups, Service Accounts
+  - Roles vs ClusterRoles, RoleBindings vs ClusterRoleBindings
+- **Hands-on Lab (45 min)**:
+  ```bash
+  # Create service account
+  kubectl create serviceaccount my-service-account
+  
+  # Create role
+  kubectl create role pod-reader --verb=get,list,watch --resource=pods
+  
+  # Create rolebinding
+  kubectl create rolebinding read-pods --role=pod-reader --serviceaccount=default:my-service-account
+  ```
+- **Practice Scenario**: Create a user with limited namespace access
+
+#### **Day 4: etcd Backup & Restore**
+- **Theory (30 min)**: etcd architecture and backup strategies
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Backup etcd
+  sudo ETCDCTL_API=3 etcdctl snapshot save /opt/etcd-backup.db \
+    --endpoints=https://127.0.0.1:2379 \
+    --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+    --cert=/etc/kubernetes/pki/etcd/server.crt \
+    --key=/etc/kubernetes/pki/etcd/server.key
+  
+  # Restore etcd
+  sudo ETCDCTL_API=3 etcdctl snapshot restore /opt/etcd-backup.db \
+    --data-dir=/var/lib/etcd-restore
+  ```
+- **Practice Scenario**: Perform complete backup and restore cycle
+
+#### **Day 5: Cluster Upgrade**
+- **Theory (30 min)**: Kubernetes upgrade process and strategies
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Upgrade kubeadm
+  sudo apt-mark unhold kubeadm && sudo apt-get update && sudo apt-get install -y kubeadm=1.32.x-00 && sudo apt-mark hold kubeadm
+  
+  # Plan upgrade
+  sudo kubeadm upgrade plan
+  
+  # Apply upgrade
+  sudo kubeadm upgrade apply v1.32.x
+  
+  # Upgrade kubelet and kubectl
+  sudo apt-mark unhold kubelet kubectl && sudo apt-get update && sudo apt-get install -y kubelet=1.32.x-00 kubectl=1.32.x-00 && sudo apt-mark hold kubelet kubectl
+  ```
+- **Practice Scenario**: Upgrade cluster from v1.31 to v1.32
+
+#### **Day 6: Node Management**
+- **Theory (30 min)**: Node lifecycle, taints, tolerations, cordoning
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Cordon node
+  kubectl cordon worker-node-1
+  
+  # Drain node
+  kubectl drain worker-node-1 --ignore-daemonsets --delete-emptydir-data
+  
+  # Add taint
+  kubectl taint nodes worker-node-1 key=value:NoSchedule
+  
+  # Remove taint
+  kubectl taint nodes worker-node-1 key=value:NoSchedule-
+  ```
+- **Practice Scenario**: Perform node maintenance workflow
+
+#### **Day 7: Week 1 Review & Mock Practice**
+- **Review (30 min)**: Week 1 concepts
+- **Mock Exam (60 min)**: Practice cluster setup and RBAC scenarios
+- **Assessment**: Test cluster architecture knowledge
+
+---
+
+### **Week 2: Workloads & Scheduling + Storage (Days 8-14)**
+*Focus: 15% + 10% weightage*
+
+#### **Day 8: Pod Management & Scheduling**
+- **Theory (30 min)**: Pod lifecycle, node selectors, affinity
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Create pod with node selector
+  kubectl run nginx --image=nginx --overrides='{"spec":{"nodeSelector":{"size":"large"}}}'
+  
+  # Pod with resource requests/limits
+  cat <<EOF | kubectl apply -f -
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: resource-pod
+  spec:
+    containers:
+    - name: nginx
+      image: nginx
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "250m"
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+  EOF
+  ```
+- **Practice Scenario**: Schedule pods on specific nodes using various methods
+
+#### **Day 9: Deployments & Rolling Updates**
+- **Theory (30 min)**: Deployment strategies, rolling updates, rollbacks
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Create deployment
+  kubectl create deployment nginx-deployment --image=nginx:1.20 --replicas=3
+  
+  # Rolling update
+  kubectl set image deployment/nginx-deployment nginx=nginx:1.21
+  
+  # Check rollout status
+  kubectl rollout status deployment/nginx-deployment
+  
+  # Rollback
+  kubectl rollout undo deployment/nginx-deployment
+  
+  # Scale deployment
+  kubectl scale deployment nginx-deployment --replicas=5
+  ```
+- **Practice Scenario**: Perform zero-downtime application updates
+
+#### **Day 10: Multi-container Pods & Init Containers**
+- **Theory (30 min)**: Sidecar, ambassador, adapter patterns
+- **Hands-on Lab (60 min)**:
+  ```yaml
+  # Multi-container pod
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: multi-container-pod
+  spec:
+    containers:
+    - name: main-app
+      image: nginx
+    - name: sidecar
+      image: busybox
+      command: ['sh', '-c', 'while true; do echo "Sidecar running"; sleep 30; done']
+    initContainers:
+    - name: init-container
+      image: busybox
+      command: ['sh', '-c', 'echo "Init completed" && sleep 5']
+  ```
+- **Practice Scenario**: Debug multi-container communication
+
+#### **Day 11: Storage - PV & PVC**
+- **Theory (30 min)**: Persistent volumes, claims, access modes
+- **Hands-on Lab (60 min)**:
+  ```yaml
+  # Create Persistent Volume
+  apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: my-pv
+  spec:
+    capacity:
+      storage: 1Gi
+    accessModes:
+    - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Retain
+    hostPath:
+      path: /tmp/data
+  
+  ---
+  # Create PVC
+  apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: my-pvc
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+  ```
+- **Practice Scenario**: Create and mount persistent storage for database pod
+
+#### **Day 12: Storage Classes & Dynamic Provisioning**
+- **Theory (30 min)**: Dynamic volume provisioning, storage classes
+- **Hands-on Lab (60 min)**:
+  ```yaml
+  # Storage Class
+  apiVersion: storage.k8s.io/v1
+  kind: StorageClass
+  metadata:
+    name: fast-ssd
+  provisioner: kubernetes.io/no-provisioner
+  volumeBindingMode: WaitForFirstConsumer
+  
+  # PVC with storage class
+  apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: dynamic-pvc
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    storageClassName: fast-ssd
+    resources:
+      requests:
+        storage: 2Gi
+  ```
+- **Practice Scenario**: Configure automatic volume provisioning
+
+#### **Day 13: ConfigMaps & Secrets**
+- **Theory (30 min)**: Configuration management patterns
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Create ConfigMap
+  kubectl create configmap app-config --from-literal=database_url=mysql://localhost:3306/app
+  
+  # Create Secret
+  kubectl create secret generic app-secret --from-literal=password=mysecretpassword
+  
+  # Use in pod
+  kubectl run test-pod --image=nginx --dry-run=client -o yaml > pod.yaml
+  # Edit pod.yaml to include configMap and secret mounts
+  ```
+- **Practice Scenario**: Inject configuration into applications securely
+
+#### **Day 14: Week 2 Review & Practice**
+- **Review (30 min)**: Workloads and storage concepts
+- **Mock Exam (60 min)**: Combined scenarios with deployments and storage
+- **Assessment**: Test scheduling and storage knowledge
+
+---
+
+### **Week 3: Services & Networking (Days 15-21)**
+*Focus: 20% weightage*
+
+#### **Day 15: Services & Service Discovery**
+- **Theory (30 min)**: Service types (ClusterIP, NodePort, LoadBalancer)
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Create ClusterIP service
+  kubectl create service clusterip my-service --tcp=80:8080
+  
+  # Create NodePort service
+  kubectl create service nodeport my-nodeport --tcp=80:8080 --node-port=30007
+  
+  # Expose deployment
+  kubectl expose deployment nginx-deployment --type=LoadBalancer --port=80
+  ```
+- **Practice Scenario**: Connect frontend and backend services
+
+#### **Day 16: Ingress & Load Balancing**
+- **Theory (30 min)**: Ingress controllers, path-based and host-based routing
+- **Hands-on Lab (60 min)**:
+  ```yaml
+  # Install Ingress Controller
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/baremetal/deploy.yaml
+  
+  # Create Ingress
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: my-ingress
+  spec:
+    rules:
+    - host: myapp.local
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: my-service
+              port:
+                number: 80
+  ```
+- **Practice Scenario**: Set up path-based routing for multiple applications
+
+#### **Day 17: Network Policies**
+- **Theory (30 min)**: Network security, ingress/egress rules
+- **Hands-on Lab (60 min)**:
+  ```yaml
+  # Deny all network policy
+  apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    name: deny-all
+  spec:
+    podSelector: {}
+    policyTypes:
+    - Ingress
+    - Egress
+  
+  # Allow specific traffic
+  apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    name: allow-frontend
+  spec:
+    podSelector:
+      matchLabels:
+        app: backend
+    policyTypes:
+    - Ingress
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: frontend
+      ports:
+      - protocol: TCP
+        port: 8080
+  ```
+- **Practice Scenario**: Implement micro-segmentation for multi-tier application
+
+#### **Day 18: DNS & Service Mesh Basics**
+- **Theory (30 min)**: CoreDNS, service discovery, FQDN resolution
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Test DNS resolution
+  kubectl run test-pod --image=busybox --rm -it -- nslookup kubernetes.default
+  
+  # Debug DNS issues
+  kubectl run debug-pod --image=busybox --rm -it -- nslookup my-service.default.svc.cluster.local
+  
+  # Check CoreDNS logs
+  kubectl logs -n kube-system -l k8s-app=kube-dns
+  ```
+- **Practice Scenario**: Troubleshoot service discovery issues
+
+#### **Day 19: CNI & Network Troubleshooting**
+- **Theory (30 min)**: Container Network Interface, network plugins
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Check network plugin status
+  kubectl get pods -n kube-system | grep flannel
+  
+  # Verify pod networking
+  kubectl exec -it test-pod -- ip route
+  kubectl exec -it test-pod -- ping 8.8.8.8
+  
+  # Network debugging
+  kubectl run netshoot --image=nicolaka/netshoot --rm -it -- bash
+  ```
+- **Practice Scenario**: Diagnose and fix networking connectivity issues
+
+#### **Day 20: Load Balancer & External Traffic**
+- **Theory (30 min)**: External traffic policies, session affinity
+- **Hands-on Lab (60 min)**:
+  ```yaml
+  # Service with session affinity
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: sticky-service
+  spec:
+    selector:
+      app: my-app
+    ports:
+    - port: 80
+      targetPort: 8080
+    sessionAffinity: ClientIP
+    sessionAffinityConfig:
+      clientIP:
+        timeoutSeconds: 300
+  ```
+- **Practice Scenario**: Configure external access with session persistence
+
+#### **Day 21: Week 3 Review & Networking Practice**
+- **Review (30 min)**: All networking concepts
+- **Mock Exam (60 min)**: Complex networking scenarios
+- **Assessment**: Test networking and services knowledge
+
+---
+
+### **Week 4: Troubleshooting & Final Preparation (Days 22-30)**
+*Focus: 30% weightage - Most important section*
+
+#### **Day 22: Cluster Troubleshooting**
+- **Theory (30 min)**: Common cluster issues, component failures
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Check cluster health
+  kubectl get nodes
+  kubectl get componentstatuses  # Deprecated but useful
+  kubectl cluster-info
+  
+  # Check system pods
+  kubectl get pods -n kube-system
+  
+  # Node troubleshooting
+  kubectl describe node worker-node-1
+  kubectl logs kubelet
+  journalctl -u kubelet
+  ```
+- **Practice Scenario**: Diagnose and fix a broken cluster
+
+#### **Day 23: Application Troubleshooting**
+- **Theory (30 min)**: Pod failures, container issues, resource problems
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Debug failing pods
+  kubectl describe pod failing-pod
+  kubectl logs failing-pod
+  kubectl logs failing-pod -c container-name
+  kubectl logs failing-pod --previous
+  
+  # Resource debugging
+  kubectl top nodes
+  kubectl top pods
+  kubectl describe node node-name | grep -A 5 "Allocated resources"
+  ```
+- **Practice Scenario**: Fix applications with various failure modes
+
+#### **Day 24: Networking Troubleshooting**
+- **Theory (30 min)**: Service connectivity, DNS issues, network policies
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Service troubleshooting
+  kubectl get endpoints my-service
+  kubectl describe service my-service
+  
+  # Network connectivity tests
+  kubectl run test-connectivity --image=busybox --rm -it -- wget -qO- my-service:80
+  
+  # DNS troubleshooting
+  kubectl run dns-test --image=busybox --rm -it -- nslookup kubernetes.default
+  ```
+- **Practice Scenario**: Resolve service discovery and connectivity issues
+
+#### **Day 25: Storage & Volume Troubleshooting**
+- **Theory (30 min)**: PV/PVC binding issues, mount problems
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Storage debugging
+  kubectl describe pvc my-pvc
+  kubectl describe pv my-pv
+  kubectl get events --sort-by=.metadata.creationTimestamp
+  
+  # Volume mount issues
+  kubectl describe pod pod-with-volume
+  kubectl exec -it pod-with-volume -- df -h
+  ```
+- **Practice Scenario**: Fix persistent volume mounting issues
+
+#### **Day 26: Monitoring & Logging**
+- **Theory (30 min)**: Resource monitoring, log aggregation
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Resource monitoring
+  kubectl top nodes
+  kubectl top pods --all-namespaces
+  kubectl describe node worker-node-1
+  
+  # Log management
+  kubectl logs -f deployment/my-app
+  kubectl logs --tail=100 pod/my-pod
+  
+  # Events monitoring
+  kubectl get events --sort-by=.metadata.creationTimestamp
+  kubectl get events --field-selector reason=Failed
+  ```
+- **Practice Scenario**: Set up monitoring and alerting for cluster health
+
+#### **Day 27: Performance Tuning & Optimization**
+- **Theory (30 min)**: Resource limits, HPA, cluster optimization
+- **Hands-on Lab (60 min)**:
+  ```bash
+  # Horizontal Pod Autoscaler
+  kubectl autoscale deployment my-app --cpu-percent=70 --min=2 --max=10
+  
+  # Resource optimization
+  kubectl describe limitrange
+  kubectl describe resourcequota
+  
+  # Performance analysis
+  kubectl top pods --sort-by=cpu
+  kubectl top pods --sort-by=memory
+  ```
+- **Practice Scenario**: Optimize cluster performance and resource usage
+
+#### **Day 28: Mock Exam #1**
+- **Full Practice Exam (120 min)**: Simulate real exam conditions
+- **Topics Covered**: All domains with official weightings
+- **Focus**: Time management and accuracy
+
+#### **Day 29: Mock Exam #2 & Review**
+- **Mock Exam (90 min)**: Second practice round
+- **Review Session (30 min)**: Analyze mistakes and gaps
+- **Final Preparation**: Review weak areas
+
+#### **Day 30: Final Review & Exam Strategies**
+- **Quick Review (60 min)**: Key commands and concepts
+- **Exam Strategy (30 min)**: Time management, question prioritization
+- **Mental Preparation**: Confidence building and relaxation
+
+---
+
+## 🛠️ **Essential Commands Cheat Sheet**
+
+### **Quick Setup**
+```bash
+# Kubectl aliases and auto-completion
+alias k=kubectl
+source <(kubectl completion bash)
+echo 'alias k=kubectl' >>~/.bashrc
+echo 'source <(kubectl completion bash)' >>~/.bashrc
+
+# Set default namespace
+kubectl config set-context --current --namespace=default
+```
+
+### **Most Used Commands**
+```bash
+# Get resources
+k get nodes,pods,svc,deploy -o wide
+k get events --sort-by=.metadata.creationTimestamp
+
+# Describe and debug
+k describe pod <pod-name>
+k logs <pod-name> -f
+k exec -it <pod-name> -- /bin/bash
+
+# Create resources quickly
+k run nginx --image=nginx --dry-run=client -o yaml > pod.yaml
+k create deployment nginx --image=nginx --dry-run=client -o yaml
+
+# Edit resources
+k edit deploy nginx
+k patch pod nginx -p '{"spec":{"containers":[{"name":"nginx","image":"nginx:1.21"}]}}'
+```
+
+---
+
+## 📚 **Recommended Resources**
+
+### **Official Documentation**
+- [Kubernetes.io Documentation](https://kubernetes.io/docs/) - Primary reference during exam
+- [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+- [CNCF CKA Curriculum](https://github.com/cncf/curriculum)
+
+### **Practice Labs**
+- **KodeKloud CKA Course** - Hands-on browser labs
+- **Killer.sh** - Official exam simulator (included with exam registration)
+- **Katacoda Kubernetes Scenarios** - Free interactive labs
+- **GitHub: chadmcrowell/CKA-Exercises** - Practice scenarios
+
+### **Setup Environments**
+- **Local**: Minikube, Kind, or K3s
+- **Cloud**: EKS, GKE, or AKS free tiers
+- **VM Setup**: Your Oracle VirtualBox with kubeadm
+
+---
+
+## ⚡ **Exam Day Strategy**
+
+### **Time Management (120 minutes)**
+1. **Quick scan (5 min)**: Read all questions, identify easy wins
+2. **High-weight domains first (60 min)**: Troubleshooting (30%) + Cluster Architecture (25%)
+3. **Medium-weight domains (40 min)**: Services & Networking (20%) + Workloads (15%)
+4. **Storage domain (10 min)**: Storage (10%)
+5. **Review and verify (5 min)**: Double-check answers
+
+### **Question Prioritization**
+1. **Easy points first**: Commands you know by heart
+2. **High-weight questions**: Troubleshooting scenarios
+3. **Medium complexity**: Installation and configuration tasks
+4. **Skip and return**: Complex scenarios that take too long
+
+### **Key Success Tips**
+- Use `kubectl explain` for YAML structure help
+- Always verify your changes with `kubectl get` commands
+- Use `--dry-run=client -o yaml` to generate templates
+- Keep official documentation bookmarked
+- Practice switching between clusters quickly
+- Master `vi` editor keyboard shortcuts
+
+---
+
+## 🎯 **Weekly Assessment Checkpoints**
+
+### **Week 1 Assessment**
+- [ ] Can set up kubeadm cluster from scratch
+- [ ] Understand RBAC and can create users/roles
+- [ ] Can backup and restore etcd
+- [ ] Can upgrade cluster components
+
+### **Week 2 Assessment**
+- [ ] Can manage deployments and rolling updates
+- [ ] Understand pod scheduling and affinity
+- [ ] Can configure persistent storage
+- [ ] Can use ConfigMaps and Secrets
+
+### **Week 3 Assessment**
+- [ ] Can create and troubleshoot services
+- [ ] Can configure ingress and network policies
+- [ ] Understand DNS and service discovery
+- [ ] Can debug networking issues
+
+### **Week 4 Assessment**
+- [ ] Can diagnose cluster health issues
+- [ ] Can troubleshoot application failures
+- [ ] Can monitor resource usage
+- [ ] Ready for exam with 80%+ mock scores
+
+**Good luck with your CKA certification journey! Remember: Practice makes perfect, and hands-on experience is key to success! 🚀**
