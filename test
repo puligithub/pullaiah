@@ -563,43 +563,43 @@ telemetry all metrics:
 
 
 #	Metric Name	Description	Type	Metric Level
-1	otelcol_exporter_enqueue_failed_ log_records	Number of logs that exporter(s) failed to enqueue.	Counter	Basic
-2	otelcol_exporter_enqueue_failed_ metric_points	Number of metric points that exporter(s) failed to enqueue.	Counter	Basic
-3	otelcol_exporter_enqueue_failed_ spans	Number of spans that exporter(s) failed to enqueue.	Counter	Basic
+1	otelcol_exporter_enqueue_failed_log_records	Number of logs that exporter(s) failed to enqueue.	Counter	Basic
+2	otelcol_exporter_enqueue_failed_metric_points	Number of metric points that exporter(s) failed to enqueue.	Counter	Basic
+3	otelcol_exporter_enqueue_failed_spans	Number of spans that exporter(s) failed to enqueue.	Counter	Basic
 4	otelcol_exporter_queue_capacity	Fixed capacity of the sending queue, in batches.	Gauge	Basic
 5	otelcol_exporter_queue_size	Current size of the sending queue, in batches.	Gauge	Basic
-6	otelcol_exporter_send_failed_ log_records	Number of logs that exporter(s) failed to send to destination.	Counter	Basic
-7	otelcol_exporter_send_failed_ metric_points	Number of metric points that exporter(s) failed to send to destination.	Counter	Basic
-8	otelcol_exporter_send_failed_ spans	Number of spans that exporter(s) failed to send to destination.	Counter	Basic
+6	otelcol_exporter_send_failed_log_records	Number of logs that exporter(s) failed to send to destination.	Counter	Basic
+7	otelcol_exporter_send_failed_metric_points	Number of metric points that exporter(s) failed to send to destination.	Counter	Basic
+8	otelcol_exporter_send_failed_spans	Number of spans that exporter(s) failed to send to destination.	Counter	Basic
 9	otelcol_exporter_sent_log_records	Number of logs successfully sent to destination.	Counter	Basic
 10	otelcol_exporter_sent_metric_points	Number of metric points successfully sent to destination.	Counter	Basic
 11	otelcol_exporter_sent_spans	Number of spans successfully sent to destination.	Counter	Basic
 12	otelcol_process_cpu_seconds	Total CPU user and system time in seconds.	Counter	Basic
 13	otelcol_process_memory_rss	Total physical memory (resident set size) in bytes.	Gauge	Basic
-14	otelcol_process_runtime_heap_ alloc_bytes	Bytes of allocated heap objects (see ‘go doc runtime.MemStats.HeapAlloc’).	Gauge	Basic
-15	otelcol_process_runtime_total_ alloc_bytes	Cumulative bytes allocated for heap objects (see ‘go doc runtime.MemStats.TotalAlloc’).	Counter	Basic
-16	otelcol_process_runtime_total_ sys_memory_bytes	Total bytes of memory obtained from the OS (see ‘go doc runtime.MemStats.Sys’).	Gauge	Basic
+14	otelcol_process_runtime_heap_alloc_bytes	Bytes of allocated heap objects (see ‘go doc runtime.MemStats.HeapAlloc’).	Gauge	Basic
+15	otelcol_process_runtime_total_alloc_bytes	Cumulative bytes allocated for heap objects (see ‘go doc runtime.MemStats.TotalAlloc’).	Counter	Basic
+16	otelcol_process_runtime_total_sys_memory_bytes	Total bytes of memory obtained from the OS (see ‘go doc runtime.MemStats.Sys’).	Gauge	Basic
 17	otelcol_process_uptime	Uptime of the process in seconds.	Counter	Basic
 18	otelcol_processor_incoming_items	Number of items passed to the processor.	Counter	Basic
 19	otelcol_processor_outgoing_items	Number of items emitted from the processor.	Counter	Basic
-20	otelcol_receiver_accepted_ log_records	Number of logs successfully ingested and pushed into the pipeline.	Counter	Basic
-21	otelcol_receiver_accepted_ metric_points	Number of metric points successfully ingested and pushed into the pipeline.	Counter	Basic
+20	otelcol_receiver_accepted_log_records	Number of logs successfully ingested and pushed into the pipeline.	Counter	Basic
+21	otelcol_receiver_accepted_metric_points	Number of metric points successfully ingested and pushed into the pipeline.	Counter	Basic
 22	otelcol_receiver_accepted_spans	Number of spans successfully ingested and pushed into the pipeline.	Counter	Basic
-23	otelcol_receiver_refused_ log_records	Number of logs that could not be pushed into the pipeline.	Counter	Basic
-24	otelcol_receiver_refused_ metric_points	Number of metric points that could not be pushed into the pipeline.	Counter	Basic
+23	otelcol_receiver_refused_log_records	Number of logs that could not be pushed into the pipeline.	Counter	Basic
+24	otelcol_receiver_refused_metric_points	Number of metric points that could not be pushed into the pipeline.	Counter	Basic
 25	otelcol_receiver_refused_spans	Number of spans that could not be pushed into the pipeline.	Counter	Basic
-26	otelcol_scraper_errored_ metric_points	Number of metric points the Collector failed to scrape.	Counter	Basic
-27	otelcol_scraper_scraped_ metric_points	Number of metric points scraped by the Collector.	Counter	Basic
-28	otelcol_processor_batch_batch_ send_size	Number of units in the batch that was sent.	Histogram	Normal
-29	otelcol_processor_batch_batch_size_ trigger_send	Number of times the batch was sent due to a size trigger.	Counter	Normal
-30	otelcol_processor_batch_metadata_ cardinality	Number of distinct metadata value combinations being processed.	Counter	Normal
-31	otelcol_processor_batch_timeout_ trigger_send	Number of times the batch was sent due to a timeout trigger.	Counter	Normal
+26	otelcol_scraper_errored_metric_points	Number of metric points the Collector failed to scrape.	Counter	Basic
+27	otelcol_scraper_scraped_metric_points	Number of metric points scraped by the Collector.	Counter	Basic
+28	otelcol_processor_batch_batch_send_size	Number of units in the batch that was sent.	Histogram	Normal
+29	otelcol_processor_batch_batch_size_trigger_send	Number of times the batch was sent due to a size trigger.	Counter	Normal
+30	otelcol_processor_batch_metadata_cardinality	Number of distinct metadata value combinations being processed.	Counter	Normal
+31	otelcol_processor_batch_timeout_trigger_send	Number of times the batch was sent due to a timeout trigger.	Counter	Normal
 32	http.client.request.body.size	Measures the size of HTTP client request bodies.	Counter	Detailed
 33	http.client.request.duration	Measures the duration of HTTP client requests.	Histogram	Detailed
 34	http.server.request.body.size	Measures the size of HTTP server request bodies.	Counter	Detailed
 35	http.server.request.duration	Measures the duration of HTTP server requests.	Histogram	Detailed
 36	http.server.response.body.size	Measures the size of HTTP server response bodies.	Counter	Detailed
-37	otelcol_processor_batch_batch_ send_size_bytes	Number of bytes in the batch that was sent.	Histogram	Detailed
+37	otelcol_processor_batch_batch_send_size_bytes	Number of bytes in the batch that was sent.	Histogram	Detailed
 38	rpc.client.duration	Measures the duration of outbound RPC.	Histogram	Detailed
 39	rpc.client.request.size	Measures the size of RPC request messages (uncompressed).	Histogram	Detailed
 40	rpc.client.requests_per_rpc	Measures the number of messages received per RPC. Should be 1 for all non-streaming RPCs.	Histogram	Detailed
