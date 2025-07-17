@@ -276,3 +276,282 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+
+
+====================
+
+views
+
+
+# OpenTelemetry Configuration for Internal Telemetry with Metric Filtering
+# This configuration demonstrates how to filter internal telemetry metrics
+
+# Global configuration
+file_format: "0.3"
+
+# Disabled by default, set to true to enable
+disabled: false
+
+# Resource configuration
+resource:
+  attributes:
+    service.name: "internal-telemetry-service"
+    service.version: "1.0.0"
+    deployment.environment: "production"
+
+# Attribute processors for internal telemetry
+attribute_processor:
+  # Processor to add internal telemetry labels
+  internal_metrics:
+    actions:
+      - action: insert
+        key: telemetry.source
+        value: "internal"
+      - action: insert
+        key: component
+        value: "otel-collector"
+
+# Instrumentation configuration
+instrumentation:
+  general:
+    # Disable automatic instrumentation that might create noise
+    disabled: false
+    
+  # Configure specific instrumentation
+  "@otel/auto-instrumentations-node":
+    enabled: true
+    
+  # HTTP instrumentation
+  "@opentelemetry/instrumentation-http":
+    enabled: true
+    ignore_incoming_paths:
+      - /health
+      - /metrics
+      - /status
+
+# Meter provider configuration with views for filtering
+meter_provider:
+  # Configure metric readers
+  readers:
+    - name: internal_metrics_reader
+      pull:
+        exporter:
+          prometheus:
+            host: "0.0.0.0"
+            port: 8889
+            without_units: false
+            without_type_suffix: false
+            without_scope_info: false
+            with_resource_constant_labels:
+              enabled: true
+      
+  # Views for filtering internal telemetry metrics
+  views:
+    # View 1: Allow only specific process metrics
+    - selector:
+        instrument_name: "process_*"
+        instrument_type: gauge
+      view:
+        name: "process_metrics"
+        description: "Process-related metrics for internal monitoring"
+        aggregation:
+          default: {}
+        attribute_filter:
+          - "process.pid"
+          - "process.executable.name"
+          - "process.command"
+          - "process.runtime.name"
+          - "process.runtime.version"
+    
+    # View 2: Allow memory metrics but filter out noisy attributes
+    - selector:
+        instrument_name: "process_memory_*"
+        instrument_type: gauge
+      view:
+        name: "memory_metrics"
+        description: "Memory usage metrics"
+        aggregation:
+          default: {}
+        attribute_filter:
+          - "type"
+          - "state"
+    
+    # View 3: Allow CPU metrics
+    - selector:
+        instrument_name: "process_cpu_*"
+        instrument_type: counter
+      view:
+        name: "cpu_metrics"
+        description: "CPU usage metrics"
+        aggregation:
+          default: {}
+        attribute_filter:
+          - "state"
+    
+    # View 4: Allow HTTP server metrics but filter attributes
+    - selector:
+        instrument_name: "http_server_*"
+        instrument_type: histogram
+      view:
+        name: "http_server_metrics"
+        description: "HTTP server metrics for internal endpoints"
+        aggregation:
+          explicit_bucket_histogram:
+            boundaries: [0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1.0, 2.5, 5.0, 7.5, 10.0]
+        attribute_filter:
+          - "http.method"
+          - "http.status_code"
+          - "http.route"
+    
+    # View 5: Drop noisy client metrics
+    - selector:
+        instrument_name: "http_client_*"
+        instrument_type: "*"
+      view:
+        aggregation:
+          drop: {}
+    
+    # View 6: Allow OpenTelemetry collector internal metrics
+    - selector:
+        instrument_name: "otelcol_*"
+        instrument_type: "*"
+      view:
+        name: "collector_internal_metrics"
+        description: "OpenTelemetry Collector internal metrics"
+        aggregation:
+          default: {}
+        attribute_filter:
+          - "processor"
+          - "receiver"
+          - "exporter"
+          - "service_name"
+          - "service_version"
+    
+    # View 7: Allow only specific runtime metrics
+    - selector:
+        instrument_name: "runtime_*"
+        instrument_type: "*"
+      view:
+        name: "runtime_metrics"
+        description: "Runtime metrics"
+        aggregation:
+          default: {}
+        attribute_filter:
+          - "gc.action"
+          - "gc.name"
+          - "heap.space"
+    
+    # View 8: Drop all database metrics (assuming internal service doesn't need them)
+    - selector:
+        instrument_name: "db_*"
+        instrument_type: "*"
+      view:
+        aggregation:
+          drop: {}
+    
+    # View 9: Drop all external service metrics
+    - selector:
+        instrument_name: "external_service_*"
+        instrument_type: "*"
+      view:
+        aggregation:
+          drop: {}
+    
+    # View 10: Allow custom application metrics with specific prefixes
+    - selector:
+        instrument_name: "app_internal_*"
+        instrument_type: "*"
+      view:
+        name: "application_internal_metrics"
+        description: "Application internal metrics"
+        aggregation:
+          default: {}
+        attribute_filter:
+          - "operation"
+          - "status"
+          - "component"
+    
+    # View 11: Transform and filter JVM metrics (if applicable)
+    - selector:
+        instrument_name: "jvm_*"
+        instrument_type: "*"
+      view:
+        name: "jvm_metrics"
+        description: "JVM metrics for internal monitoring"
+        aggregation:
+          default: {}
+        attribute_filter:
+          - "area"
+          - "pool"
+          - "type"
+          - "id"
+    
+    # View 12: Default drop view for any unmatched metrics
+    - selector:
+        instrument_name: "*"
+        instrument_type: "*"
+      view:
+        aggregation:
+          drop: {}
+
+# Tracer provider configuration (minimal for internal telemetry)
+tracer_provider:
+  processors:
+    - batch:
+        timeout: 5s
+        send_batch_size: 512
+        send_batch_max_size: 1024
+  
+  # Only export internal traces
+  exporters:
+    - otlp:
+        endpoint: "http://internal-tracing-backend:4317"
+        compression: gzip
+        timeout: 30s
+        headers:
+          api-key: "${INTERNAL_TRACING_API_KEY}"
+
+# Logger provider configuration
+logger_provider:
+  processors:
+    - batch:
+        timeout: 5s
+        send_batch_size: 512
+  
+  # Filter logs to only include internal telemetry
+  exporters:
+    - otlp:
+        endpoint: "http://internal-logging-backend:4317"
+        compression: gzip
+        timeout: 30s
+        headers:
+          api-key: "${INTERNAL_LOGGING_API_KEY}"
+
+# Sampling configuration
+sampling:
+  # Use parent-based sampling for internal telemetry
+  parent_based:
+    root:
+      ratio: 0.1  # Sample 10% of internal traces
+    remote_parent_sampled:
+      ratio: 1.0
+    remote_parent_not_sampled:
+      ratio: 0.0
+    local_parent_sampled:
+      ratio: 1.0
+    local_parent_not_sampled:
+      ratio: 0.0
+
+# Propagators configuration
+propagators:
+  - tracecontext
+  - baggage
+
+# Environment variables that can be used
+# INTERNAL_TRACING_API_KEY: API key for internal tracing backend
+# INTERNAL_LOGGING_API_KEY: API key for internal logging backend
+# OTEL_EXPORTER_OTLP_ENDPOINT: Override for OTLP endpoint
+# OTEL_RESOURCE_ATTRIBUTES: Additional resource attributes
