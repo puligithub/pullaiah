@@ -314,3 +314,17 @@ flowchart TD
 
   D1 -->|Visualized in| E1
   D2 -->|Visualized in| E2
+
+
+
+1. Add timestamp both gateway & agent metrics only
+2. Add timestamp diff at kafka stream app key value 
+3. Remove empty keys and make it key value
+4. Find way for histogram value sum/count
+5. Remove service.id & service description
+6. Request for api
+7. Validate data with chiru
+8. Find splunk ingestion timestamp value
+9. Identify failure cases
+10. Draft Visualizations and descriptions on what will be presented
+11. Fix empty string for gW key
